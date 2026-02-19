@@ -1,14 +1,18 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import Navbar from "@/components/Navbar";
+import HeroBanner from "@/components/HeroBanner";
+import MovieRow from "@/components/MovieRow";
+import { CATEGORIES } from "@/lib/omdb";
 
-const Index = () => {
+export default function Index() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <HeroBanner />
+      <div className="-mt-16 relative z-10 pb-16">
+        {CATEGORIES.map((cat) => (
+          <MovieRow key={cat.query} title={cat.title} query={cat.query} />
+        ))}
       </div>
     </div>
   );
-};
-
-export default Index;
+}
