@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { isInWatchlist, addToWatchlist, removeFromWatchlist } from "@/lib/watchlist";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, Check, Star } from "lucide-react";
+import { ArrowLeft, Plus, Check, Star, Play } from "lucide-react";
 
 export default function MovieDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -18,29 +18,37 @@ export default function MovieDetailsPage() {
   useEffect(() => {
     if (!id) return;
     setLoading(true);
-    getMovieDetails(id).then((data) => {
+    getMovieDetails(id).then(async (data) => {
       setMovie(data);
       setLoading(false);
-      if (user && data) setInList(isInWatchlist(user.id, data.imdbID));
+      if (user && data) {
+        const result = await isInWatchlist(user.id, data.imdbID);
+        setInList(result);
+      }
     });
   }, [id, user]);
 
-  const toggleWatchlist = () => {
+  const toggleWatchlist = async () => {
     if (!user || !movie) return;
     if (inList) {
-      removeFromWatchlist(user.id, movie.imdbID);
+      await removeFromWatchlist(user.id, movie.imdbID);
       setInList(false);
     } else {
-      addToWatchlist(user.id, { imdbID: movie.imdbID, Title: movie.Title, Year: movie.Year, Poster: movie.Poster, Type: movie.Type });
+      await addToWatchlist(user.id, { imdbID: movie.imdbID, Title: movie.Title, Year: movie.Year, Poster: movie.Poster, Type: movie.Type });
       setInList(true);
     }
+  };
+
+  const openTrailer = () => {
+    if (!movie) return;
+    window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(movie.Title + " " + movie.Year + " official trailer")}`, "_blank");
   };
 
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Navbar />
-        <p className="text-muted-foreground">Loading...</p>
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -60,7 +68,6 @@ export default function MovieDetailsPage() {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Hero */}
       <div className="relative h-[50vh] w-full overflow-hidden md:h-[60vh]">
         {poster && (
           <div
@@ -90,14 +97,19 @@ export default function MovieDetailsPage() {
                 <span>{movie.Rated}</span>
                 <span>{movie.Genre}</span>
               </div>
-              <Button
-                onClick={toggleWatchlist}
-                variant={inList ? "secondary" : "default"}
-                className="w-fit gap-2"
-              >
-                {inList ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-                {inList ? "In My List" : "Add to My List"}
-              </Button>
+              <div className="flex gap-3">
+                <Button onClick={openTrailer} className="gap-2 bg-white text-black hover:bg-white/90">
+                  <Play className="h-4 w-4 fill-current" /> Play Trailer
+                </Button>
+                <Button
+                  onClick={toggleWatchlist}
+                  variant={inList ? "secondary" : "default"}
+                  className="gap-2"
+                >
+                  {inList ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                  {inList ? "In My List" : "Add to My List"}
+                </Button>
+              </div>
             </div>
           </div>
         </div>

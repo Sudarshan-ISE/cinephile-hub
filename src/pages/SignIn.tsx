@@ -12,14 +12,14 @@ export default function SignIn() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password.trim()) {
       toast.error("Please fill in all fields.");
       return;
     }
     setLoading(true);
-    const result = login(email, password);
+    const result = await login(email, password);
     setLoading(false);
     if (result.success) {
       navigate("/");
@@ -30,22 +30,16 @@ export default function SignIn() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden">
-      {/* Background */}
       <div
         className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage:
-            "url(https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1920&q=80)",
-        }}
+        style={{ backgroundImage: "url(https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1920&q=80)" }}
       />
       <div className="absolute inset-0 bg-black/70" />
 
-      {/* Logo */}
       <div className="absolute left-8 top-6 z-20">
         <h1 className="text-3xl font-extrabold tracking-tighter text-primary">NETFLUX</h1>
       </div>
 
-      {/* Glassmorphic Card */}
       <div className="relative z-10 mx-4 w-full max-w-md animate-fade-in rounded-2xl border border-white/10 bg-black/60 p-10 shadow-2xl backdrop-blur-xl">
         <h2 className="mb-2 text-3xl font-bold text-foreground">Sign In</h2>
         <p className="mb-8 text-muted-foreground">Welcome back! Sign in to continue.</p>

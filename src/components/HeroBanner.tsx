@@ -26,12 +26,14 @@ export default function HeroBanner() {
     return <div className="h-[70vh] bg-background" />;
   }
 
-  const backdrop =
-    movie.Poster !== "N/A" ? movie.Poster : "";
+  const backdrop = movie.Poster !== "N/A" ? movie.Poster : "";
+
+  const openTrailer = () => {
+    window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(movie.Title + " " + movie.Year + " official trailer")}`, "_blank");
+  };
 
   return (
     <div className="relative h-[70vh] w-full overflow-hidden">
-      {/* Background */}
       {backdrop && (
         <div
           className="absolute inset-0 bg-cover bg-center transition-all duration-1000"
@@ -41,7 +43,6 @@ export default function HeroBanner() {
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
       <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-transparent" />
 
-      {/* Content */}
       <div className="relative flex h-full items-end px-6 pb-24 md:px-12">
         <div className="max-w-2xl animate-slide-up">
           <h1 className="mb-3 text-4xl font-extrabold leading-tight text-foreground md:text-6xl">
@@ -60,7 +61,7 @@ export default function HeroBanner() {
             <Button
               size="lg"
               className="gap-2 bg-white text-black hover:bg-white/90"
-              onClick={() => navigate(`/movie/${movie.imdbID}`)}
+              onClick={openTrailer}
             >
               <Play className="h-5 w-5 fill-current" /> Play
             </Button>
@@ -74,7 +75,6 @@ export default function HeroBanner() {
             </Button>
           </div>
 
-          {/* Indicators */}
           {movies.length > 1 && (
             <div className="mt-6 flex gap-2">
               {movies.map((_, i) => (
