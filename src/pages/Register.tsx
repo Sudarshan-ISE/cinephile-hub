@@ -14,7 +14,7 @@ export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !email.trim() || !password.trim()) {
       toast.error("Please fill in all fields.");
@@ -29,7 +29,7 @@ export default function Register() {
       return;
     }
     setLoading(true);
-    const result = register(name, email, password);
+    const result = await register(name, email, password);
     setLoading(false);
     if (result.success) {
       toast.success("Account created! Please sign in.");
@@ -43,10 +43,7 @@ export default function Register() {
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden">
       <div
         className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage:
-            "url(https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1920&q=80)",
-        }}
+        style={{ backgroundImage: "url(https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1920&q=80)" }}
       />
       <div className="absolute inset-0 bg-black/70" />
 

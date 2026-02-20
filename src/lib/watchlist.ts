@@ -1,32 +1,47 @@
+import { supabase } from "@/integrations/supabase/client";
 import { MovieSummary } from "./omdb";
 
-const WATCHLIST_KEY = "netflix_clone_watchlist";
+export async function getWatchlist(userId: string): Promise<MovieSummary[]> {
+  const { data } = await supabase
+    .from("watchlist")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
 
-function getKey(userId: string) {
-  return `${WATCHLIST_KEY}_${userId}`;
+  return (data || []).map((item: any) => ({
+    imdbID: item.movie_id,
+    Title: item.title,
+    Year: item.year || "",
+    Poster: item.poster || "N/A",
+    Type: item.type || "movie",
+  }));
 }
 
-export function getWatchlist(userId: string): MovieSummary[] {
-  try {
-    return JSON.parse(localStorage.getItem(getKey(userId)) || "[]");
-  } catch {
-    return [];
-  }
+export async function addToWatchlist(userId: string, movie: MovieSummary) {
+  await supabase.from("watchlist").upsert({
+    user_id: userId,
+    movie_id: movie.imdbID,
+    title: movie.Title,
+    poster: movie.Poster,
+    year: movie.Year,
+    type: movie.Type,
+  }, { onConflict: "user_id,movie_id" });
 }
 
-export function addToWatchlist(userId: string, movie: MovieSummary) {
-  const list = getWatchlist(userId);
-  if (!list.find((m) => m.imdbID === movie.imdbID)) {
-    list.push(movie);
-    localStorage.setItem(getKey(userId), JSON.stringify(list));
-  }
+export async function removeFromWatchlist(userId: string, imdbID: string) {
+  await supabase
+    .from("watchlist")
+    .delete()
+    .eq("user_id", userId)
+    .eq("movie_id", imdbID);
 }
 
-export function removeFromWatchlist(userId: string, imdbID: string) {
-  const list = getWatchlist(userId).filter((m) => m.imdbID !== imdbID);
-  localStorage.setItem(getKey(userId), JSON.stringify(list));
-}
-
-export function isInWatchlist(userId: string, imdbID: string): boolean {
-  return getWatchlist(userId).some((m) => m.imdbID === imdbID);
+export async function isInWatchlist(userId: string, imdbID: string): Promise<boolean> {
+  const { data } = await supabase
+    .from("watchlist")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("movie_id", imdbID)
+    .maybeSingle();
+  return !!data;
 }
